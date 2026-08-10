@@ -28,6 +28,30 @@
   }
 }
 
+// Mobile Responsive UI adjustments for smaller viewports (Android Android Port)
+@media (max-width: 768px) {
+  #desktop-app-contents {
+    flex-direction: column !important;
+  }
+
+  #repository-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+
+  #desktop-app-toolbar {
+    flex-wrap: wrap !important;
+    height: auto !important;
+
+    .toolbar-button {
+      flex: 1 1 auto !important;
+      min-width: 120px !important;
+    }
+  }
+}
+
 #desktop-app-contents {
   &.commit-being-dragged {
     :not(input):not(textarea),
