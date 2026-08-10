@@ -1,6 +1,25 @@
 import { RequestResponseChannels, RequestChannels } from './ipc-shared'
-// eslint-disable-next-line no-restricted-imports
-import { ipcRenderer, IpcRendererEvent } from 'electron'
+import type { IpcRendererEvent } from 'electron'
+
+// Safe fallback for non-electron web environments (e.g. Android WebView)
+let ipcRenderer: any = {
+  invoke: async () => ({}),
+  send: () => {},
+  sendSync: () => ({}),
+  on: () => {},
+  once: () => {},
+  removeListener: () => {}
+}
+
+try {
+  // eslint-disable-next-line no-restricted-imports
+  const electron = require('electron')
+  if (electron && electron.ipcRenderer) {
+    ipcRenderer = electron.ipcRenderer
+  }
+} catch (e) {
+  // Gracefully fallback
+}
 
 /**
  * Send a message to the main process via channel and expect a result

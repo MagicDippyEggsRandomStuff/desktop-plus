@@ -46,7 +46,7 @@
     "draft-release": "ts-node -P script/tsconfig.json script/draft-release/index.ts",
     "draft-release:format": "prettier --check --write changelog.json app/package.json && yarn validate-changelog",
     "validate-changelog": "ts-node -P script/tsconfig.json script/validate-changelog.ts",
-    "android:sync": "npx cap sync android",
+    "android:sync": "yarn compile:prod && npx cap sync android",
     "android:build": "cd android && ./gradlew assembleDebug --no-daemon"
   },
   "author": {
