@@ -1,3 +1,4 @@
+import '../lib/process-shim'
 import '../lib/logging/renderer/install'
 
 import * as React from 'react'
@@ -114,7 +115,11 @@ enableSourceMaps()
 
 // Tell dugite where to find the git environment,
 // see https://github.com/desktop/dugite/pull/85
-process.env['LOCAL_GIT_DIRECTORY'] = Path.resolve(__dirname, 'git')
+try {
+  process.env['LOCAL_GIT_DIRECTORY'] = Path.resolve((typeof __dirname !== 'undefined' ? __dirname : '/'), 'git')
+} catch (e) {
+  process.env['LOCAL_GIT_DIRECTORY'] = '/git'
+}
 
 // Ensure that dugite infers the GIT_EXEC_PATH
 // based on the LOCAL_GIT_DIRECTORY env variable

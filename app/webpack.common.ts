@@ -105,6 +105,8 @@ export const renderer = merge({}, commonConfig, {
     new webpack.DefinePlugin(
       Object.assign({}, replacements, {
         __PROCESS_KIND__: JSON.stringify('ui'),
+        __dirname: JSON.stringify('/'),
+        __filename: JSON.stringify('/index.js'),
       })
     ),
   ],
@@ -138,6 +140,11 @@ export const renderer = merge({}, commonConfig, {
       'node:module': path.resolve(__dirname, 'src/lib/empty.ts'),
       'node:fs': path.resolve(__dirname, 'src/lib/empty.ts'),
       'node:crypto': path.resolve(__dirname, 'src/lib/empty.ts'),
+      keytar: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'registry-js': path.resolve(__dirname, 'src/lib/empty.ts'),
+      dugite: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs-admin': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'desktop-notifications': path.resolve(__dirname, 'src/lib/empty.ts'),
     }
   },
 })
@@ -163,6 +170,8 @@ export const crash = merge({}, commonConfig, {
     new webpack.DefinePlugin(
       Object.assign({}, replacements, {
         __PROCESS_KIND__: JSON.stringify('crash'),
+        __dirname: JSON.stringify('/'),
+        __filename: JSON.stringify('/index.js'),
       })
     ),
   ],
@@ -194,6 +203,11 @@ export const crash = merge({}, commonConfig, {
       'node:module': path.resolve(__dirname, 'src/lib/empty.ts'),
       'node:fs': path.resolve(__dirname, 'src/lib/empty.ts'),
       'node:crypto': path.resolve(__dirname, 'src/lib/empty.ts'),
+      keytar: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'registry-js': path.resolve(__dirname, 'src/lib/empty.ts'),
+      dugite: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs-admin': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'desktop-notifications': path.resolve(__dirname, 'src/lib/empty.ts'),
     }
   }
 })
