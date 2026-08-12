@@ -334,3 +334,41 @@
     --welcome-item-height: 29px;
   }
 }
+
+@media (max-width: 768px) {
+  #welcome {
+    flex-direction: column !important;
+  }
+  .welcome-left {
+    width: 100% !important;
+    padding: var(--spacing-double) !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+  }
+  .welcome-right {
+    display: none !important;
+  }
+  #start {
+    min-height: auto !important;
+    margin-bottom: var(--spacing-double) !important;
+    .start-content {
+      margin-top: var(--spacing-double) !important;
+    }
+  }
+  .welcome-title {
+    font-size: 1.8rem !important;
+  }
+  .welcome-main-buttons {
+    margin-top: var(--spacing-double) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--spacing) !important;
+
+    .button-component {
+      width: 100% !important;
+      margin: 0 !important;
+      text-align: center !important;
+    }
+  }
+}
