@@ -1,11 +1,27 @@
 // Webpack mock stub for Android WebView/browser target compatibility
 export const createRequire = () => () => ({})
-export const join = (...args: string[]) => args.join('/')
-export const resolve = (...args: string[]) => args.join('/')
-export const basename = (p: string) => p.split('/').pop() || ''
+export const join = (...args: string[]) => args.filter(Boolean).join('/').replace(/\/+/g, '/')
+export const resolve = (...args: string[]) => args.filter(Boolean).join('/').replace(/\/+/g, '/')
+export const basename = (p: string, ext?: string) => {
+  let b = p.split('/').pop() || ''
+  if (ext && b.endsWith(ext)) {
+    b = b.slice(0, -ext.length)
+  }
+  return b
+}
 export const dirname = (p: string) => p.split('/').slice(0, -1).join('/') || '/'
-export const posix = { join, resolve, basename, dirname }
-export const win32 = { join, resolve, basename, dirname }
+export const extname = (p: string) => {
+  const b = basename(p)
+  const idx = b.lastIndexOf('.')
+  return idx > 0 ? b.slice(idx) : ''
+}
+export const normalize = (p: string) => p.replace(/\/+/g, '/')
+export const relative = (from: string, to: string) => to.replace(from, '').replace(/^\//, '')
+export const isAbsolute = (p: string) => p.startsWith('/') || /^[a-zA-Z]:/.test(p)
+export const sep = '/'
+
+export const posix = { join, resolve, basename, dirname, extname, normalize, relative, isAbsolute, sep }
+export const win32 = { join, resolve, basename, dirname, extname, normalize, relative, isAbsolute, sep: '\\' }
 
 // Filesystem mock functions
 export const mkdir = async () => {}
