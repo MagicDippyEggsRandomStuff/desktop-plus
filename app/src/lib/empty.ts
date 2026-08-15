@@ -312,6 +312,28 @@ export const enumerateKeys = () => []
 export const getValue = () => null
 export const setValue = () => {}
 
+// Keytar Mock Exports
+export const setPassword = async (service: string, account: string, password: string) => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(`keytar:${service}:${account}`, password)
+  }
+}
+export const getPassword = async (service: string, account: string) => {
+  if (typeof localStorage !== 'undefined') {
+    return localStorage.getItem(`keytar:${service}:${account}`)
+  }
+  return null
+}
+export const deletePassword = async (service: string, account: string) => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(`keytar:${service}:${account}`)
+    return true
+  }
+  return false
+}
+export const findPassword = async (service: string) => null
+export const findCredentials = async (service: string) => []
+
 export default {
   createRequire,
   join,
