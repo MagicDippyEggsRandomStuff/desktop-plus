@@ -79,19 +79,6 @@ import { TrampolineCommandIdentifier } from '../lib/trampoline/trampoline-comman
 import { createAskpassTrampolineHandler } from '../lib/trampoline/trampoline-askpass-handler'
 import { createCredentialHelperTrampolineHandler } from '../lib/trampoline/trampoline-credential-helper'
 
-// Ensure global process shim exists in non-electron/browser/WebView environments
-if (typeof window !== 'undefined') {
-  const processShim: any = {
-    env: { TEST_ENV: '' },
-    platform: 'android',
-    on: () => {},
-    off: () => {},
-    once: () => {},
-    cwd: () => '/',
-  }
-  ;(window as any).process = (window as any).process || processShim
-  ;(global as any).process = (global as any).process || processShim
-}
 
 if (__DEV__) {
   installDevGlobals()

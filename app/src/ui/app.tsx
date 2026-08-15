@@ -322,6 +322,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     super(props)
 
     props.dispatcher.loadInitialState().then(() => {
+      console.log("APP.TSX: loadInitialState RESOLVED!");
       this.loading = false
       this.forceUpdate()
 

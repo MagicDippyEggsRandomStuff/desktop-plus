@@ -9265,6 +9265,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
     return this.signInStore.setToken(token)
   }
 
+  public _showTokenEntry() {
+    this.signInStore.showTokenEntry()
+  }
+
   public _requestBrowserAuthentication() {
     this.signInStore.authenticateWithBrowser()
   }

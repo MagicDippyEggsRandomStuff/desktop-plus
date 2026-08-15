@@ -6,14 +6,87 @@ export const basename = (p: string) => p.split('/').pop() || ''
 export const dirname = (p: string) => p.split('/').slice(0, -1).join('/') || '/'
 export const posix = { join, resolve, basename, dirname }
 export const win32 = { join, resolve, basename, dirname }
+
+// Filesystem mock functions
+export const mkdir = async () => {}
+export const mkdirSync = () => {}
+export const writeFile = async () => {}
+export const writeFileSync = () => {}
+export const readFile = async () => ''
+export const readFileSync = () => ''
+export const readdir = async () => []
+export const readdirSync = () => []
+export const unlink = async () => {}
+export const unlinkSync = () => {}
+export const rm = async () => {}
+export const rmSync = () => {}
+export const stat = async () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
+export const statSync = () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
+export const lstat = async () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
+export const lstatSync = () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
+export const access = async () => {}
+export const accessSync = () => {}
+export const copyFile = async () => {}
+export const copyFileSync = () => {}
+export const mkdtemp = async () => '/tmp/temp'
+export const mkdtempSync = () => '/tmp/temp'
+export const readlink = async () => ''
+export const readlinkSync = () => ''
+export const symlink = async () => {}
+export const symlinkSync = () => {}
+export const appendFile = async () => {}
+export const appendFileSync = () => {}
+export const open = async () => ({
+  close: async () => {},
+  read: async () => ({ bytesRead: 0 }),
+  write: async () => {}
+})
+export const cp = async () => {}
+export const cpSync = () => {}
 export const existsSync = () => false
-export const stat = async () => ({ isDirectory: () => false })
-export const statSync = () => ({ isDirectory: () => false })
 
 export const realpath: any = async (p: string) => p
 realpath.native = async (p: string) => p
+export const realpathSync = (p: string) => p
 
-export const promises = { stat, existsSync, realpath }
+export const constants = { F_OK: 0, R_OK: 4, W_OK: 2, X_OK: 1 }
+
+export const promises = {
+  mkdir,
+  mkdirSync,
+  writeFile,
+  writeFileSync,
+  readFile,
+  readFileSync,
+  readdir,
+  readdirSync,
+  unlink,
+  unlinkSync,
+  rm,
+  rmSync,
+  stat,
+  statSync,
+  lstat,
+  lstatSync,
+  access,
+  accessSync,
+  copyFile,
+  copyFileSync,
+  mkdtemp,
+  mkdtempSync,
+  readlink,
+  readlinkSync,
+  symlink,
+  symlinkSync,
+  appendFile,
+  appendFileSync,
+  open,
+  cp,
+  cpSync,
+  existsSync,
+  realpath
+}
+
 export const randomUUID = () => '00000000-0000-0000-0000-000000000000'
 export const spawn = () => ({
   on: () => {},
@@ -42,14 +115,62 @@ export const createServer = () => ({
   close: () => {},
   unref: () => {}
 })
-export const shell = { openExternal: async () => true }
+
+export const shell = {
+  openExternal: async (url: string) => {
+    if (typeof window !== 'undefined') {
+      window.open(url, '_system') || window.open(url, '_blank') || (window.location.href = url)
+      return true
+    }
+    return false
+  }
+}
+
 export const ipcRenderer = {
   on: () => {},
   once: () => {},
   off: () => {},
   send: () => {},
   sendSync: () => {},
-  invoke: async () => ({})
+  invoke: async (channel: string, ...args: any[]) => {
+    console.log("MOCK IPC INVOKE:", channel);
+    if (channel === 'show-open-dialog') {
+      const defaultPath = '/storage/emulated/0/Download'
+      const res = typeof window !== 'undefined' && window.prompt
+        ? window.prompt('Enter local folder path for the repository:', defaultPath)
+        : defaultPath
+      return res ? { canceled: false, filePaths: [res] } : { canceled: true, filePaths: [] }
+    }
+    if (channel === 'show-save-dialog') {
+      const defaultPath = '/storage/emulated/0/Download'
+      const res = typeof window !== 'undefined' && window.prompt
+        ? window.prompt('Enter local path to create/save repository:', defaultPath)
+        : defaultPath
+      return res ? { canceled: false, filePath: res } : { canceled: true, filePath: null }
+    }
+    if (channel === 'get-path') {
+      return '/storage/emulated/0/Download'
+    }
+    if (channel === 'get-current-window-zoom-factor') {
+      return 1
+    }
+    if (channel === 'get-current-window-state') {
+      return { x: 0, y: 0, width: 800, height: 600, isMaximized: false, isFullScreen: false }
+    }
+    if (channel === 'should-use-dark-colors') {
+      return false
+    }
+    if (channel === 'get-notifications-permission') {
+      return 'granted'
+    }
+    if (channel === 'get-main-process-config') {
+      return { titleBarStyle: 'custom', hideWindowOnQuit: false }
+    }
+    if (channel === 'get-config-migration-result') {
+      return null
+    }
+    return null
+  }
 }
 export const webUtils = { getPathForFile: (f: any) => f.path || '' }
 export const promisify = (fn: any) => fn
@@ -220,5 +341,35 @@ export default {
   getValue,
   setValue,
   homedir,
-  tmpdir
+  tmpdir,
+  mkdir,
+  mkdirSync,
+  writeFile,
+  writeFileSync,
+  readFile,
+  readFileSync,
+  readdir,
+  readdirSync,
+  unlink,
+  unlinkSync,
+  rm,
+  rmSync,
+  lstat,
+  lstatSync,
+  access,
+  accessSync,
+  copyFile,
+  copyFileSync,
+  mkdtemp,
+  mkdtempSync,
+  readlink,
+  readlinkSync,
+  symlink,
+  symlinkSync,
+  appendFile,
+  appendFileSync,
+  open,
+  cp,
+  cpSync,
+  constants
 }

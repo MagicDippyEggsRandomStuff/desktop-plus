@@ -1982,6 +1982,10 @@ export class Dispatcher {
     return this.appStore._setSignInToken(token)
   }
 
+  public showTokenEntry() {
+    this.appStore._showTokenEntry()
+  }
+
   public beginBrowserBasedSignIn(
     endpoint: string,
     resultCallback?: (result: SignInResult) => void

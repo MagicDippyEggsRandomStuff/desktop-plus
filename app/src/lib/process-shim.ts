@@ -11,12 +11,23 @@ const processShim = {
   on: () => {},
   off: () => {},
   once: () => {},
+  emit: () => {},
+  listeners: () => [],
+  removeListener: () => {},
+  removeAllListeners: () => {},
+  binding: (name: string) => {
+    if (name === 'uv') {
+      return { errname: () => 'unknown' }
+    }
+    return {}
+  },
   cwd: () => '/',
   nextTick: (cb: any) => setTimeout(cb, 0),
 }
 
 if (typeof window !== 'undefined') {
-  ;(window as any).process = (window as any).process || processShim
+  const existingProcess = (window as any).process || {}
+  ;(window as any).process = Object.assign(existingProcess, processShim)
   ;(window as any).Buffer = (window as any).Buffer || Buffer
   ;(window as any).global = (window as any).global || window
   ;(window as any).setImmediate = (window as any).setImmediate || ((cb: any, ...args: any[]) => setTimeout(() => cb(...args), 0))
