@@ -323,9 +323,6 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     props.dispatcher
       .loadInitialState()
-      .then(() => {
-        console.log("APP.TSX: loadInitialState RESOLVED!")
-      })
       .catch(err => {
         console.error("APP.TSX: loadInitialState ERROR:", err)
       })
