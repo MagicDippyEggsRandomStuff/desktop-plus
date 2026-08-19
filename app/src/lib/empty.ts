@@ -126,10 +126,15 @@ export class Readable {
 export class Transform {}
 export class PassThrough {}
 export const createServer = () => ({
-  listen: () => {},
+  listen: (_port?: any, _host?: any, cb?: any) => {
+    if (typeof cb === 'function') cb()
+    else if (typeof _host === 'function') _host()
+    else if (typeof _port === 'function') _port()
+  },
   on: () => {},
   close: () => {},
-  unref: () => {}
+  unref: () => {},
+  address: () => ({ port: 12345, address: '127.0.0.1', family: 'IPv4' })
 })
 
 export const shell = {
