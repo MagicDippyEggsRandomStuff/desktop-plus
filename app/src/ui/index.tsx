@@ -78,6 +78,8 @@ import { trampolineServer } from '../lib/trampoline/trampoline-server'
 import { TrampolineCommandIdentifier } from '../lib/trampoline/trampoline-command'
 import { createAskpassTrampolineHandler } from '../lib/trampoline/trampoline-askpass-handler'
 import { createCredentialHelperTrampolineHandler } from '../lib/trampoline/trampoline-credential-helper'
+import { App as CapacitorApp } from '@capacitor/app'
+import { parseAppURL } from '../lib/parse-app-url'
 
 
 if (__DEV__) {
@@ -407,6 +409,21 @@ ipcRenderer.on('url-action', (_, action) =>
     .dispatchURLAction(action)
     .catch(e => log.error(`URL action ${action.name} failed`, e))
 )
+
+try {
+  CapacitorApp.addListener('appUrlOpen', event => {
+    if (event && event.url) {
+      const action = parseAppURL(event.url)
+      if (action.name !== 'unknown') {
+        dispatcher
+          .dispatchURLAction(action)
+          .catch(e => log.error(`Capacitor URL action ${action.name} failed`, e))
+      }
+    }
+  })
+} catch (e) {
+  // Ignore in non-Capacitor environments
+}
 
 ipcRenderer.on('cli-action', (_, action) =>
   dispatcher

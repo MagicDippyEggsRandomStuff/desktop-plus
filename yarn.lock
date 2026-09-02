@@ -196,6 +196,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-8.5.0.tgz#1fa7c7eb00b6600df1f346b6548869670e6cd0d3"
   integrity sha512-Rb3prJeQiTp0pQhSSOReJuG9VgibOGMG4ECs+UhMwr6TCCHZ3NCZO811bDA0HxD0xrT/gCrJAsY5yfEATu84JQ==
 
+"@capacitor/app@^8.1.1":
+  version "8.1.1"
+  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-8.1.1.tgz#af00649d0c7799ec83469b1c4ada921f9933a77e"
+  integrity sha512-xM2ZTX5jK60tFtmjsmJv+Cdj1Qsb6NcavkqmdEnCPQBeya9oKhamZJxYOnQNj1ZvcJM7sWfG6BEtSLx42pisbA==
+
 "@capacitor/cli@^8.5.0":
   version "8.5.0"
   resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-8.5.0.tgz#655bbdec95997ee723fecc1d326a08517b4eaf9f"

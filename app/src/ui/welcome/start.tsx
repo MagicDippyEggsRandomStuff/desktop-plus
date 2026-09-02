@@ -64,9 +64,14 @@ export class Start extends React.Component<IStartProps, {}> {
             {this.props.loadingBrowserAuth ? (
               <Button onClick={this.cancelBrowserAuth}>Cancel</Button>
             ) : (
-              <Button onClick={this.signInToEnterprise}>
-                Sign in to GitHub Enterprise
-              </Button>
+              <>
+                <Button onClick={this.signInWithToken}>
+                  Sign in with Personal Access Token
+                </Button>
+                <Button onClick={this.signInToEnterprise}>
+                  Sign in to GitHub Enterprise
+                </Button>
+              </>
             )}
           </div>
           <div className="skip-action-container">
@@ -121,6 +126,11 @@ export class Start extends React.Component<IStartProps, {}> {
 
   private cancelBrowserAuth = () => {
     this.props.advance(WelcomeStep.Start)
+  }
+
+  private signInWithToken = () => {
+    this.props.dispatcher.beginDotComSignIn(() => {})
+    this.props.dispatcher.showTokenEntry()
   }
 
   private signInToEnterprise = () => {

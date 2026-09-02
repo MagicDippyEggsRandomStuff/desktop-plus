@@ -23,6 +23,44 @@ export const sep = '/'
 export const posix = { join, resolve, basename, dirname, extname, normalize, relative, isAbsolute, sep }
 export const win32 = { join, resolve, basename, dirname, extname, normalize, relative, isAbsolute, sep: '\\' }
 
+// Known repository tracking for web/mobile mock environment
+const knownRepos = new Set<string>()
+
+const normalizeRepoPath = (p: string) => (p || '').trim().replace(/\/+$/, '')
+
+const loadKnownRepos = () => {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('known_git_repos')
+      if (saved) {
+        JSON.parse(saved).forEach((p: string) => knownRepos.add(normalizeRepoPath(p)))
+      }
+    } catch (e) {}
+  }
+}
+loadKnownRepos()
+
+export const addKnownRepo = (p: string) => {
+  if (!p) return
+  const norm = normalizeRepoPath(p)
+  knownRepos.add(norm)
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem('known_git_repos', JSON.stringify(Array.from(knownRepos)))
+    } catch (e) {}
+  }
+}
+
+export const isKnownRepo = (p: string) => {
+  if (!p) return false
+  const norm = normalizeRepoPath(p)
+  if (knownRepos.has(norm)) return true
+  for (const r of knownRepos) {
+    if (norm === r || norm.startsWith(r + '/')) return true
+  }
+  return false
+}
+
 // Filesystem mock functions
 export const mkdir = async () => {}
 export const mkdirSync = () => {}
@@ -36,10 +74,10 @@ export const unlink = async () => {}
 export const unlinkSync = () => {}
 export const rm = async () => {}
 export const rmSync = () => {}
-export const stat = async () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
-export const statSync = () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
-export const lstat = async () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
-export const lstatSync = () => ({ isDirectory: () => false, isFile: () => true, size: 0 })
+export const stat = async () => ({ isDirectory: () => true, isFile: () => true, size: 0 })
+export const statSync = () => ({ isDirectory: () => true, isFile: () => true, size: 0 })
+export const lstat = async () => ({ isDirectory: () => true, isFile: () => true, size: 0 })
+export const lstatSync = () => ({ isDirectory: () => true, isFile: () => true, size: 0 })
 export const access = async () => {}
 export const accessSync = () => {}
 export const copyFile = async () => {}
@@ -59,7 +97,7 @@ export const open = async () => ({
 })
 export const cp = async () => {}
 export const cpSync = () => {}
-export const existsSync = () => false
+export const existsSync = (p?: any) => Boolean(p)
 
 export const realpath: any = async (p: string) => p
 realpath.native = async (p: string) => p
@@ -160,14 +198,22 @@ export const ipcRenderer = {
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local folder path for the repository:', defaultPath)
         : defaultPath
-      return res ? { canceled: false, filePaths: [res] } : { canceled: true, filePaths: [] }
+      if (res) {
+        addKnownRepo(res)
+        return { canceled: false, filePaths: [res] }
+      }
+      return { canceled: true, filePaths: [] }
     }
     if (channel === 'show-save-dialog') {
       const defaultPath = '/storage/emulated/0/Download'
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local path to create/save repository:', defaultPath)
         : defaultPath
-      return res ? { canceled: false, filePath: res } : { canceled: true, filePath: null }
+      if (res) {
+        addKnownRepo(res)
+        return { canceled: false, filePath: res }
+      }
+      return { canceled: true, filePath: null }
     }
     if (channel === 'get-path') {
       return '/storage/emulated/0/Download'
@@ -290,7 +336,66 @@ export class ExecError extends Error {
   public stderr: string = ''
   public cause: any = null
 }
-export const exec = async () => ({ exitCode: 0, stdout: '', stderr: '' })
+
+export const exec = async (args?: any, path?: any, options?: any) => {
+  const argList: string[] = Array.isArray(args) ? args : Array.isArray(path) ? path : []
+  const repoPath: string = typeof path === 'string' ? path : typeof args === 'string' ? args : ''
+  const argsStr = argList.join(' ')
+
+  if (
+    argsStr.includes('init') ||
+    argsStr.includes('clone') ||
+    argsStr.includes('remote') ||
+    argsStr.includes('checkout') ||
+    argsStr.includes('commit') ||
+    argsStr.includes('add')
+  ) {
+    if (repoPath) {
+      addKnownRepo(repoPath)
+    }
+  }
+
+  if (argList.includes('rev-parse')) {
+    if (isKnownRepo(repoPath)) {
+      if (argList.includes('--is-bare-repository')) {
+        return { exitCode: 0, stdout: 'false\n\n.git\n', stderr: '' }
+      }
+      if (argList.includes('--git-dir')) {
+        return { exitCode: 0, stdout: '.git\n', stderr: '' }
+      }
+      if (argList.includes('--show-toplevel')) {
+        return { exitCode: 0, stdout: `${repoPath}\n`, stderr: '' }
+      }
+      if (argList.includes('HEAD')) {
+        return { exitCode: 0, stdout: '4b825dc642cb6eb9a060e54bf8d69288fbee4904\n', stderr: '' }
+      }
+      return { exitCode: 0, stdout: `${repoPath}\n`, stderr: '' }
+    } else {
+      return {
+        exitCode: 128,
+        stdout: '',
+        stderr: 'fatal: not a git repository (or any of the parent directories): .git'
+      }
+    }
+  }
+
+  if (argList.includes('symbolic-ref')) {
+    return { exitCode: 0, stdout: 'refs/heads/main\n', stderr: '' }
+  }
+
+  if (argList.includes('for-each-ref')) {
+    return { exitCode: 0, stdout: 'refs/heads/main\n', stderr: '' }
+  }
+
+  if (argList.includes('config')) {
+    if (argList.includes('user.name')) return { exitCode: 0, stdout: 'Mobile User\n', stderr: '' }
+    if (argList.includes('user.email')) return { exitCode: 0, stdout: 'user@mobile.app\n', stderr: '' }
+    return { exitCode: 0, stdout: '', stderr: '' }
+  }
+
+  return { exitCode: 0, stdout: '', stderr: '' }
+}
+
 export const resolveGitBinary = () => 'git'
 
 // Registry-js Mock Exports
@@ -414,5 +519,7 @@ export default {
   open,
   cp,
   cpSync,
-  constants
+  constants,
+  addKnownRepo,
+  isKnownRepo
 }
