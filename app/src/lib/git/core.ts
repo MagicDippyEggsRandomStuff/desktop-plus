@@ -336,8 +336,18 @@ export async function git(
             gitError !== null
               ? getDescriptionForError(gitError, coerceToString(result.stderr))
               : null
+
+          let stdout = result.stdout
+          let stderr = result.stderr
+          if (opts.encoding === 'buffer') {
+            if (typeof stdout === 'string') stdout = Buffer.from(stdout)
+            if (typeof stderr === 'string') stderr = Buffer.from(stderr)
+          }
+
           const gitResult = {
             ...result,
+            stdout,
+            stderr,
             gitError,
             gitErrorDescription,
             path,

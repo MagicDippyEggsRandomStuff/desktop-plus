@@ -183,11 +183,18 @@ export async function getCommits(
       .split(', ')
       .flatMap(ref => (ref.startsWith('tag: ') ? ref.substring(5) : []))
 
+    const summaryBuf = Buffer.isBuffer(commit.summary)
+      ? commit.summary
+      : Buffer.from(commit.summary ? String(commit.summary) : '')
+    const bodyBuf = Buffer.isBuffer(commit.body)
+      ? commit.body
+      : Buffer.from(commit.body ? String(commit.body) : '')
+
     return new Commit(
       commit.sha.toString(),
       commit.shortSha.toString(),
-      commit.summary.subarray(0, 100 * 1024).toString(),
-      commit.body.subarray(0, 100 * 1024).toString(),
+      summaryBuf.subarray(0, 100 * 1024).toString(),
+      bodyBuf.subarray(0, 100 * 1024).toString(),
       CommitIdentity.parseIdentity(commit.author.toString()),
       CommitIdentity.parseIdentity(commit.committer.toString()),
       commit.parents.length > 0 ? commit.parents.toString().split(' ') : [],

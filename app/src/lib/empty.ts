@@ -194,7 +194,7 @@ export const ipcRenderer = {
   invoke: async (channel: string, ...args: any[]) => {
     console.log("MOCK IPC INVOKE:", channel);
     if (channel === 'show-open-dialog') {
-      const defaultPath = '/storage/emulated/0/Download'
+      const defaultPath = '/storage/emulated/0/Android/data/org.desktopplus.app/files'
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local folder path for the repository:', defaultPath)
         : defaultPath
@@ -205,7 +205,7 @@ export const ipcRenderer = {
       return { canceled: true, filePaths: [] }
     }
     if (channel === 'show-save-dialog') {
-      const defaultPath = '/storage/emulated/0/Download'
+      const defaultPath = '/storage/emulated/0/Android/data/org.desktopplus.app/files'
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local path to create/save repository:', defaultPath)
         : defaultPath
@@ -216,7 +216,7 @@ export const ipcRenderer = {
       return { canceled: true, filePath: null }
     }
     if (channel === 'get-path') {
-      return '/storage/emulated/0/Download'
+      return '/storage/emulated/0/Android/data/org.desktopplus.app/files'
     }
     if (channel === 'get-current-window-zoom-factor') {
       return 1

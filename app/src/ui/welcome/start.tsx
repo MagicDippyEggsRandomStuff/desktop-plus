@@ -9,6 +9,7 @@ import { Loading } from '../lib/loading'
 import { BrowserRedirectMessage } from '../lib/authentication-form'
 import { ENABLE_TELEMETRY } from '../../lib/telemetry-flag'
 import { SamplesURL } from '../../lib/stats'
+import { PopupType } from '../../models/popup'
 
 /**
  * The URL to the sign-up page on GitHub.com. Used in conjunction
@@ -129,6 +130,7 @@ export class Start extends React.Component<IStartProps, {}> {
   }
 
   private signInWithToken = () => {
+    this.props.dispatcher.showPopup({ type: PopupType.SignIn })
     this.props.dispatcher.beginDotComSignIn(() => {})
     this.props.dispatcher.showTokenEntry()
   }
