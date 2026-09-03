@@ -9,6 +9,7 @@ import { Loading } from '../lib/loading'
 import { BrowserRedirectMessage } from '../lib/authentication-form'
 import { ENABLE_TELEMETRY } from '../../lib/telemetry-flag'
 import { SamplesURL } from '../../lib/stats'
+import { PopupType } from '../../models/popup'
 
 /**
  * The URL to the sign-up page on GitHub.com. Used in conjunction
@@ -64,9 +65,14 @@ export class Start extends React.Component<IStartProps, {}> {
             {this.props.loadingBrowserAuth ? (
               <Button onClick={this.cancelBrowserAuth}>Cancel</Button>
             ) : (
-              <Button onClick={this.signInToEnterprise}>
-                Sign in to GitHub Enterprise
-              </Button>
+              <>
+                <Button onClick={this.signInWithToken}>
+                  Sign in with Personal Access Token
+                </Button>
+                <Button onClick={this.signInToEnterprise}>
+                  Sign in to GitHub Enterprise
+                </Button>
+              </>
             )}
           </div>
           <div className="skip-action-container">
@@ -121,6 +127,12 @@ export class Start extends React.Component<IStartProps, {}> {
 
   private cancelBrowserAuth = () => {
     this.props.advance(WelcomeStep.Start)
+  }
+
+  private signInWithToken = () => {
+    this.props.dispatcher.showPopup({ type: PopupType.SignIn })
+    this.props.dispatcher.beginDotComSignIn(() => {})
+    this.props.dispatcher.showTokenEntry()
   }
 
   private signInToEnterprise = () => {

@@ -321,22 +321,35 @@ export class App extends React.Component<IAppProps, IAppState> {
   public constructor(props: IAppProps) {
     super(props)
 
-    props.dispatcher.loadInitialState().then(() => {
-      this.loading = false
-      this.forceUpdate()
+    props.dispatcher
+      .loadInitialState()
+      .catch(err => {
+        console.error("APP.TSX: loadInitialState ERROR:", err)
+      })
+      .finally(() => {
+        this.loading = false
+        this.forceUpdate()
 
-      requestIdleCallback(
-        () => {
-          const now = performance.now()
-          sendReady(now - props.startTime)
+        if (typeof requestIdleCallback !== 'undefined') {
+          requestIdleCallback(
+            () => {
+              const now = performance.now()
+              sendReady(now - props.startTime)
 
-          requestIdleCallback(() => {
+              requestIdleCallback(() => {
+                this.performDeferredLaunchActions()
+              })
+            },
+            { timeout: ReadyDelay }
+          )
+        } else {
+          setTimeout(() => {
+            const now = performance.now()
+            sendReady(now - props.startTime)
             this.performDeferredLaunchActions()
-          })
-        },
-        { timeout: ReadyDelay }
-      )
-    })
+          }, ReadyDelay)
+        }
+      })
 
     this.state = props.appStore.getState()
     props.appStore.onDidUpdate(state => {
@@ -4462,6 +4475,7 @@ export class App extends React.Component<IAppProps, IAppState> {
   }
 
   public render() {
+    console.log("APP RENDER, loading:", this.loading)
     if (this.loading) {
       return null
     }

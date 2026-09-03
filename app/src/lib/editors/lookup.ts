@@ -13,6 +13,10 @@ let editorCache: ReadonlyArray<IFoundEditor<string>> | null = null
 export async function getAvailableEditors(): Promise<
   ReadonlyArray<IFoundEditor<string>>
 > {
+  if (typeof window !== 'undefined' && (!window.process || !(window.process as any).versions || !(window.process as any).versions.electron)) {
+    return []
+  }
+
   if (editorCache && editorCache.length > 0) {
     return editorCache
   }

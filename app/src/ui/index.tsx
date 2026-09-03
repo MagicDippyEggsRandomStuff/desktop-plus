@@ -1,3 +1,4 @@
+import '../lib/process-shim'
 import '../lib/logging/renderer/install'
 
 import * as React from 'react'
@@ -77,22 +78,37 @@ import { trampolineServer } from '../lib/trampoline/trampoline-server'
 import { TrampolineCommandIdentifier } from '../lib/trampoline/trampoline-command'
 import { createAskpassTrampolineHandler } from '../lib/trampoline/trampoline-askpass-handler'
 import { createCredentialHelperTrampolineHandler } from '../lib/trampoline/trampoline-credential-helper'
+import { App as CapacitorApp } from '@capacitor/app'
+import { parseAppURL } from '../lib/parse-app-url'
+
 
 if (__DEV__) {
   installDevGlobals()
 }
 
-migrateRendererGUID()
+try {
+  migrateRendererGUID()
+} catch (e) {
+  // Gracefully skip on mobile
+}
 
-if (shellNeedsPatching(process)) {
-  updateEnvironmentForProcess()
+if (typeof process !== 'undefined' && shellNeedsPatching(process)) {
+  try {
+    updateEnvironmentForProcess()
+  } catch (e) {
+    // Gracefully skip on mobile
+  }
 }
 
 enableSourceMaps()
 
 // Tell dugite where to find the git environment,
 // see https://github.com/desktop/dugite/pull/85
-process.env['LOCAL_GIT_DIRECTORY'] = Path.resolve(__dirname, 'git')
+try {
+  process.env['LOCAL_GIT_DIRECTORY'] = Path.resolve((typeof __dirname !== 'undefined' ? __dirname : '/'), 'git')
+} catch (e) {
+  process.env['LOCAL_GIT_DIRECTORY'] = '/git'
+}
 
 // Ensure that dugite infers the GIT_EXEC_PATH
 // based on the LOCAL_GIT_DIRECTORY env variable
@@ -393,6 +409,21 @@ ipcRenderer.on('url-action', (_, action) =>
     .dispatchURLAction(action)
     .catch(e => log.error(`URL action ${action.name} failed`, e))
 )
+
+try {
+  CapacitorApp.addListener('appUrlOpen', event => {
+    if (event && event.url) {
+      const action = parseAppURL(event.url)
+      if (action.name !== 'unknown') {
+        dispatcher
+          .dispatchURLAction(action)
+          .catch(e => log.error(`Capacitor URL action ${action.name} failed`, e))
+      }
+    }
+  })
+} catch (e) {
+  // Ignore in non-Capacitor environments
+}
 
 ipcRenderer.on('cli-action', (_, action) =>
   dispatcher

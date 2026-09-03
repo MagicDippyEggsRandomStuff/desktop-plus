@@ -128,6 +128,10 @@ export class SignIn extends React.Component<ISignInProps, ISignInState> {
     this.setState({ token })
   }
 
+  private onTokenSignInFallback = () => {
+    this.props.dispatcher.showTokenEntry()
+  }
+
   private renderFooter(): JSX.Element | null {
     const state = this.props.signInState
 
@@ -220,6 +224,30 @@ export class SignIn extends React.Component<ISignInProps, ISignInState> {
 
   private renderTokenEntryStep(state: ITokenEntryState) {
     const { apiType, webBaseUrl } = state
+    const isGitHub = apiType === 'dotcom' || apiType === 'enterprise'
+
+    const description = isGitHub ? (
+      <div id="sign-in-token-description">
+        Create a token with the required scopes (such as <Ref>repo</Ref>, <Ref>user</Ref>, <Ref>workflow</Ref>) in your{' '}
+        <LinkButton
+          uri={`${webBaseUrl}/settings/tokens`}
+        >
+          GitHub settings
+        </LinkButton>
+        .
+      </div>
+    ) : (
+      <div id="sign-in-token-description">
+        Create a token with the scopes{' '}
+        <Ref>{selfHostedTokenScopes[apiType as SelfHostedApiType].join(', ')}</Ref> in your{' '}
+        <LinkButton
+          uri={getSelfHostedTokenSettingsURL(webBaseUrl, apiType as SelfHostedApiType)}
+        >
+          {friendlySelfHostedName(apiType as SelfHostedApiType)} settings
+        </LinkButton>
+        .
+      </div>
+    )
 
     return (
       <DialogContent>
@@ -236,16 +264,7 @@ export class SignIn extends React.Component<ISignInProps, ISignInState> {
           />
         </Row>
         <Row>
-          <div id="sign-in-token-description">
-            Create a token with the scopes{' '}
-            <Ref>{selfHostedTokenScopes[apiType].join(', ')}</Ref> in your{' '}
-            <LinkButton
-              uri={getSelfHostedTokenSettingsURL(webBaseUrl, apiType)}
-            >
-              {friendlySelfHostedName(apiType)} settings
-            </LinkButton>
-            .
-          </div>
+          {description}
         </Row>
       </DialogContent>
     )
@@ -264,6 +283,11 @@ export class SignIn extends React.Component<ISignInProps, ISignInState> {
       <DialogContent>
         {credentialHelperInfo}
         {browserSignInInfoContent}
+        <Row className="token-signin-fallback">
+          <LinkButton onClick={this.onTokenSignInFallback}>
+            Sign in with a personal access token instead
+          </LinkButton>
+        </Row>
       </DialogContent>
     )
   }

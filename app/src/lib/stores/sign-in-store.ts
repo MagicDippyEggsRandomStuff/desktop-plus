@@ -142,7 +142,7 @@ export interface ITokenEntryState extends ISignInState {
   readonly webBaseUrl: string
 
   /** The provider the instance is running. */
-  readonly apiType: SelfHostedApiType
+  readonly apiType: AccountAPIType
 
   readonly resultCallback: (result: SignInResult) => void
 }
@@ -322,11 +322,12 @@ const isGitHubHostname = (hostname: string) =>
 /** Turn an API failure from the token step into a user-facing message. */
 function toTokenSignInError(
   e: any,
-  apiType: SelfHostedApiType,
+  apiType: AccountAPIType,
   endpoint: string,
   webBaseUrl: string
 ): Error {
-  const name = friendlySelfHostedName(apiType)
+  const isGitHub = apiType === 'dotcom' || apiType === 'enterprise'
+  const isSelfHosted = apiType === 'gitlab' || apiType === 'forgejo' || apiType === 'gitea'
 
   if (e instanceof APIError) {
     switch (e.responseStatus) {
@@ -335,15 +336,25 @@ function toTokenSignInError(
           `The personal access token was rejected by ${webBaseUrl}. Make sure it hasn't expired and that you copied it correctly.`
         )
       case 403: {
-        const scopes = selfHostedTokenScopes[apiType].join(', ')
+        const scopes = isGitHub
+          ? 'repo, user, workflow'
+          : isSelfHosted
+          ? selfHostedTokenScopes[apiType as SelfHostedApiType].join(', ')
+          : 'required scopes'
         return new Error(
           `The personal access token doesn't grant enough access. Create one with the scopes ${scopes}.`
         )
       }
-      case 404:
+      case 404: {
+        const name = isGitHub
+          ? 'GitHub'
+          : isSelfHosted
+          ? friendlySelfHostedName(apiType as SelfHostedApiType)
+          : 'Git'
         return new Error(
           `Couldn't find a ${name} API at ${endpoint}. Make sure the address points to a ${name} instance.`
         )
+      }
       default:
         return e
     }
@@ -921,5 +932,32 @@ export class SignInStore extends TypedBaseStore<SignInState | null> {
 
     this.emitAuthenticate(account)
     this.setState({ kind: SignInStep.Success, resultCallback })
+  }
+
+  public showTokenEntry() {
+    const currentState = this.state
+    if (!currentState) {
+      return
+    }
+
+    if (
+      currentState.kind !== SignInStep.Authentication &&
+      currentState.kind !== SignInStep.ExistingAccountWarning
+    ) {
+      return
+    }
+
+    const { endpoint, apiType, resultCallback } = currentState
+    const webBaseUrl = endpoint
+
+    this.setState({
+      kind: SignInStep.TokenEntry,
+      endpoint,
+      webBaseUrl,
+      apiType,
+      error: null,
+      loading: false,
+      resultCallback,
+    })
   }
 }

@@ -2954,6 +2954,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   /** Load the initial state for the app. */
   public async loadInitialState() {
+    try {
     const [accounts, repositories] = await Promise.all([
       this.accountsStore.getAll(),
       this.repositoriesStore.getAll(),
@@ -2970,7 +2971,6 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.repositories = repositories
 
     this.updateRepositorySelectionAfterRepositoriesChanged()
-
     this.sidebarWidth = constrain(
       getNumber(sidebarWidthConfigKey, defaultSidebarWidth)
     )
@@ -3077,9 +3077,12 @@ export class AppStore extends TypedBaseStore<IAppState> {
       getEnum(uncommittedChangesStrategyKey, UncommittedChangesStrategy) ??
       defaultUncommittedChangesStrategy
 
-    this.updateSelectedExternalEditor(
-      await this.lookupSelectedExternalEditor()
-    ).catch(e => log.error('Failed resolving current editor at startup', e))
+    try {
+      const selectedEditor = await this.lookupSelectedExternalEditor()
+      this.updateSelectedExternalEditor(selectedEditor).catch(e => log.error('Failed resolving current editor at startup', e))
+    } catch (e) {
+      log.error('Failed lookup selected editor at startup', e)
+    }
 
     const shellValue = localStorage.getItem(shellKey)
     this.selectedShell = shellValue ? parseShell(shellValue) : DefaultShell
@@ -3246,6 +3249,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.accountsStore.refresh()
 
     this.updateMenuLabelsForSelectedRepository()
+    } catch (e) {
+      console.error('[AppStore] Error in loadInitialState:', e)
+    }
   }
 
   /**
@@ -9263,6 +9269,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   public _setSignInToken(token: string): Promise<void> {
     return this.signInStore.setToken(token)
+  }
+
+  public _showTokenEntry() {
+    this.signInStore.showTokenEntry()
   }
 
   public _requestBrowserAuthentication() {

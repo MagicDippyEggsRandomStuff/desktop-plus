@@ -1946,11 +1946,11 @@ export class Dispatcher {
     return this.appStore._setSignInEndpoint(url)
   }
 
-  public beginDotComSignIn(resultCallback: (result: SignInResult) => void) {
+  public beginDotComSignIn(resultCallback?: (result: SignInResult) => void) {
     this.appStore._beginDotComSignIn(resultCallback)
   }
 
-  public beginBitbucketSignIn(resultCallback: (result: SignInResult) => void) {
+  public beginBitbucketSignIn(resultCallback?: (result: SignInResult) => void) {
     this.appStore._beginBitbucketSignIn(resultCallback)
   }
 
@@ -1980,6 +1980,10 @@ export class Dispatcher {
    */
   public setSignInToken(token: string): Promise<void> {
     return this.appStore._setSignInToken(token)
+  }
+
+  public showTokenEntry() {
+    this.appStore._showTokenEntry()
   }
 
   public beginBrowserBasedSignIn(

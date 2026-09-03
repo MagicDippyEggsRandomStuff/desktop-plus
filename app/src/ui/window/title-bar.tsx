@@ -90,8 +90,14 @@ export class TitleBar extends React.Component<ITitleBarProps> {
     const inFullScreen = this.props.windowState === 'full-screen'
     const isMaximized = this.props.windowState === 'maximized'
 
-    // No Windows controls when we're in full-screen mode.
-    const winControls = !__DARWIN__ && !inFullScreen ? <WindowControls /> : null
+    const isElectron =
+      typeof process !== 'undefined' &&
+      process.versions &&
+      !!process.versions.electron
+
+    // No Windows controls when we're in full-screen mode or non-Electron (mobile/web).
+    const winControls =
+      !__DARWIN__ && !inFullScreen && isElectron ? <WindowControls /> : null
 
     // On Windows it's not possible to resize a frameless window if the
     // element that sits flush along the window edge has -webkit-app-region: drag.
@@ -100,11 +106,13 @@ export class TitleBar extends React.Component<ITitleBarProps> {
     // disables drag while still letting users drag the app by the titlebar below
     // those 3px.
     const topResizeHandle =
-      !__DARWIN__ && !isMaximized ? <div className="resize-handle top" /> : null
+      !__DARWIN__ && !isMaximized && isElectron ? (
+        <div className="resize-handle top" />
+      ) : null
 
     // And a 3px wide element on the left hand side.
     const leftResizeHandle =
-      !__DARWIN__ && !isMaximized ? (
+      !__DARWIN__ && !isMaximized && isElectron ? (
         <div className="resize-handle left" />
       ) : null
 

@@ -66,7 +66,7 @@ export const main = merge({}, commonConfig, {
 
 export const renderer = merge({}, commonConfig, {
   entry: { renderer: path.resolve(__dirname, 'src/ui/index') },
-  target: 'electron-renderer',
+  target: 'web',
   module: {
     rules: [
       {
@@ -93,33 +93,123 @@ export const renderer = merge({}, commonConfig, {
         resource.request = 'vscode-jsonrpc/lib/node/main.js'
       }
     ),
+    new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^fs\/promises$/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^fs$/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
     new webpack.DefinePlugin(
       Object.assign({}, replacements, {
         __PROCESS_KIND__: JSON.stringify('ui'),
+        __dirname: JSON.stringify('/'),
+        __filename: JSON.stringify('/index.js'),
       })
     ),
   ],
   resolve: {
     // Prevent the renderer from using browser-specific versions of modules
     aliasFields: [],
+    alias: {
+      fs: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs/promises': path.resolve(__dirname, 'src/lib/empty.ts'),
+      path: path.resolve(__dirname, 'src/lib/empty.ts'),
+      child_process: path.resolve(__dirname, 'src/lib/empty.ts'),
+      os: path.resolve(__dirname, 'src/lib/empty.ts'),
+      url: path.resolve(__dirname, 'src/lib/empty.ts'),
+      util: path.resolve(__dirname, 'src/lib/empty.ts'),
+      assert: path.resolve(__dirname, 'src/lib/empty.ts'),
+      stream: path.resolve(__dirname, 'src/lib/empty.ts'),
+      constants: path.resolve(__dirname, 'src/lib/empty.ts'),
+      crypto: path.resolve(__dirname, 'src/lib/empty.ts'),
+      http: path.resolve(__dirname, 'src/lib/empty.ts'),
+      https: path.resolve(__dirname, 'src/lib/empty.ts'),
+      zlib: path.resolve(__dirname, 'src/lib/empty.ts'),
+      electron: path.resolve(__dirname, 'src/lib/empty.ts'),
+      net: path.resolve(__dirname, 'src/lib/empty.ts'),
+      module: path.resolve(__dirname, 'src/lib/empty.ts'),
+      timers: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:child_process': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:dns': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:net': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:path': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:url': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:module': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:fs': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:crypto': path.resolve(__dirname, 'src/lib/empty.ts'),
+      keytar: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'registry-js': path.resolve(__dirname, 'src/lib/empty.ts'),
+      dugite: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs-admin': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'desktop-notifications': path.resolve(__dirname, 'src/lib/empty.ts'),
+    }
   },
 })
 
 export const crash = merge({}, commonConfig, {
   entry: { crash: path.resolve(__dirname, 'src/crash/index') },
-  target: 'electron-renderer',
+  target: 'web',
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Desktop Plus',
       filename: 'crash.html',
       chunks: ['crash'],
     }),
+    new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^fs\/promises$/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^fs$/, resource => {
+      resource.request = path.resolve(__dirname, 'src/lib/empty.ts')
+    }),
     new webpack.DefinePlugin(
       Object.assign({}, replacements, {
         __PROCESS_KIND__: JSON.stringify('crash'),
+        __dirname: JSON.stringify('/'),
+        __filename: JSON.stringify('/index.js'),
       })
     ),
   ],
+  resolve: {
+    alias: {
+      fs: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs/promises': path.resolve(__dirname, 'src/lib/empty.ts'),
+      path: path.resolve(__dirname, 'src/lib/empty.ts'),
+      child_process: path.resolve(__dirname, 'src/lib/empty.ts'),
+      os: path.resolve(__dirname, 'src/lib/empty.ts'),
+      url: path.resolve(__dirname, 'src/lib/empty.ts'),
+      util: path.resolve(__dirname, 'src/lib/empty.ts'),
+      assert: path.resolve(__dirname, 'src/lib/empty.ts'),
+      stream: path.resolve(__dirname, 'src/lib/empty.ts'),
+      constants: path.resolve(__dirname, 'src/lib/empty.ts'),
+      crypto: path.resolve(__dirname, 'src/lib/empty.ts'),
+      http: path.resolve(__dirname, 'src/lib/empty.ts'),
+      https: path.resolve(__dirname, 'src/lib/empty.ts'),
+      zlib: path.resolve(__dirname, 'src/lib/empty.ts'),
+      electron: path.resolve(__dirname, 'src/lib/empty.ts'),
+      net: path.resolve(__dirname, 'src/lib/empty.ts'),
+      module: path.resolve(__dirname, 'src/lib/empty.ts'),
+      timers: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:child_process': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:dns': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:net': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:path': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:url': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:module': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:fs': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'node:crypto': path.resolve(__dirname, 'src/lib/empty.ts'),
+      keytar: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'registry-js': path.resolve(__dirname, 'src/lib/empty.ts'),
+      dugite: path.resolve(__dirname, 'src/lib/empty.ts'),
+      'fs-admin': path.resolve(__dirname, 'src/lib/empty.ts'),
+      'desktop-notifications': path.resolve(__dirname, 'src/lib/empty.ts'),
+    }
+  }
 })
 
 export const cli = merge({}, commonConfig, {
