@@ -1,9 +1,51 @@
 import { RequestResponseChannels, RequestChannels } from './ipc-shared'
 import type { IpcRendererEvent } from 'electron'
 
+function pickDirectoryWithInput(): Promise<string[] | null> {
+  return new Promise(resolve => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.setAttribute('webkitdirectory', '')
+    input.setAttribute('directory', '')
+
+    input.onchange = () => {
+      if (input.files && input.files.length > 0) {
+        const firstFile = input.files[0] as any
+        const relativePath = firstFile.webkitRelativePath
+        let folderPath = ''
+
+        if (firstFile.path) {
+          const topDir = relativePath ? relativePath.split('/')[0] : ''
+          const fullPath = (firstFile.path as string).replace(/\\/g, '/')
+          if (topDir && fullPath.includes('/' + topDir + '/')) {
+            folderPath = fullPath.substring(0, fullPath.indexOf('/' + topDir + '/') + topDir.length + 1)
+          } else {
+            folderPath = fullPath.substring(0, fullPath.lastIndexOf('/'))
+          }
+        } else if (relativePath) {
+          const topDir = relativePath.split('/')[0]
+          folderPath = `/storage/emulated/0/Documents/${topDir}`
+        }
+
+        resolve(folderPath ? [folderPath] : null)
+      } else {
+        resolve(null)
+      }
+    }
+
+    input.oncancel = () => resolve(null)
+    input.click()
+  })
+}
+
 // Safe fallback for non-electron web environments (e.g. Android WebView)
 let ipcRenderer: any = {
-  invoke: async () => ({}),
+  invoke: async (channel: string, ...args: any[]) => {
+    if (channel === 'show-open-dialog') {
+      return pickDirectoryWithInput()
+    }
+    return ({})
+  },
   send: () => {},
   sendSync: () => ({}),
   on: () => {},

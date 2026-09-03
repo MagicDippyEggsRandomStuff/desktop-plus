@@ -194,7 +194,7 @@ export const ipcRenderer = {
   invoke: async (channel: string, ...args: any[]) => {
     console.log("MOCK IPC INVOKE:", channel);
     if (channel === 'show-open-dialog') {
-      const defaultPath = '/storage/emulated/0/Android/data/org.desktopplus.app/files'
+      const defaultPath = '/storage/emulated/0/Documents/GitHub'
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local folder path for the repository:', defaultPath)
         : defaultPath
@@ -205,7 +205,7 @@ export const ipcRenderer = {
       return { canceled: true, filePaths: [] }
     }
     if (channel === 'show-save-dialog') {
-      const defaultPath = '/storage/emulated/0/Android/data/org.desktopplus.app/files'
+      const defaultPath = '/storage/emulated/0/Documents/GitHub'
       const res = typeof window !== 'undefined' && window.prompt
         ? window.prompt('Enter local path to create/save repository:', defaultPath)
         : defaultPath
@@ -216,7 +216,7 @@ export const ipcRenderer = {
       return { canceled: true, filePath: null }
     }
     if (channel === 'get-path') {
-      return '/storage/emulated/0/Android/data/org.desktopplus.app/files'
+      return '/storage/emulated/0/Documents/GitHub'
     }
     if (channel === 'get-current-window-zoom-factor') {
       return 1
@@ -247,7 +247,7 @@ export const platform = () => 'android'
 export const arch = () => 'arm64'
 export const pathToFileURL = (p: string) => ({ href: p })
 export const fileURLToPath = (p: string) => p
-export const homedir = () => '/'
+export const homedir = () => '/storage/emulated/0/Documents'
 export const tmpdir = () => '/tmp'
 
 export const inherits = (ctor: any, superCtor: any) => {
